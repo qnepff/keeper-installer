@@ -1,4 +1,4 @@
-module github.com/quickneasy/keeper-installer
+module github.com/qnepff/keeper-installer
 
 go 1.24
 
