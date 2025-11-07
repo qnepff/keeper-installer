@@ -1,0 +1,11 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=QNE Browser Installer
+Comment=Install QuickNEasy Browser
+Icon=qne-browser-installer
+Exec=qne-browser-installer
+Terminal=false
+Categories=Network;WebBrowser;Utility;
+Keywords=browser;web;internet;installer;qne;
+StartupNotify=true

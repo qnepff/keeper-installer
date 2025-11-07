@@ -1,0 +1,32 @@
+# Binaries
+keeper-installer
+keeper-installer.exe
+keeper-installer-darwin
+*.AppImage
+
+# Go build artifacts
+dist/
+*.tar.gz
+*.deb
+*.rpm
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Testing
+*.test
+*.out
+coverage.txt
+
+# Temporary files
+tmp/
+temp/
+*.tmp
