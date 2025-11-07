@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuickNEasy - Chameleon Keeper</title>
+    <meta name="description" content="QuickNEasy - Your platform for managing chameleons on the decentralized QNE Network">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="logo">
+                <h1>QuickNEasy</h1>
+            </div>
+            <nav class="nav">
+                <a href="#features">Features</a>
+                <a href="#about">About</a>
+                <a href="#community">Community</a>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <section class="hero">
+            <div class="container">
+                <h1 class="hero-title">Your Gateway to the<br>Decentralized Web</h1>
+                <p class="hero-subtitle">Your platform for managing chameleons and accessing the QNE Network</p>
+                <div class="hero-cta">
+                    <button id="download-btn" class="btn-primary" onclick="downloadInstaller()">
+                        <span class="btn-icon">⬇️</span>
+                        <span id="download-text">Download Keeper</span>
+                    </button>
+                    <p class="download-info">
+                        <span id="os-info"></span> • Free and Open Source
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <section id="features" class="features">
+            <div class="container">
+                <h2 class="section-title">Why QuickNEasy?</h2>
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">🔒</div>
+                        <h3>Private & Secure</h3>
+                        <p>End-to-end encrypted communications with no central servers</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🌐</div>
+                        <h3>Peer-to-Peer</h3>
+                        <p>Direct connections between users, no intermediaries</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">⚡</div>
+                        <h3>Fast & Efficient</h3>
+                        <p>Optimized performance for distributed content delivery</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🛡️</div>
+                        <h3>Censorship Resistant</h3>
+                        <p>No central authority can block or censor content</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="about" class="about">
+            <div class="container">
+                <h2 class="section-title">Built for the Future</h2>
+                <p class="about-text">
+                    QuickNEasy is a next-generation browser designed for the decentralized web.
+                    Built on peer-to-peer technology, it enables secure, private, and censorship-resistant
+                    communication and content sharing.
+                </p>
+            </div>
+        </section>
+
+        <section id="community" class="community">
+            <div class="container">
+                <h2 class="section-title">Join the Community</h2>
+                <p class="community-text">
+                    Be part of the decentralized web revolution. Connect with other users,
+                    share ideas, and help build a better internet.
+                </p>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2025 QuickNEasy. Building the decentralized future.</p>
+        </div>
+    </footer>
+
+    <script>
+        // OS Detection
+        function detectOS() {
+            const userAgent = window.navigator.userAgent;
+            const platform = window.navigator.platform;
+            const macosPlatforms = ['Macintosh', 'MacIntel', 'MacPPC', 'Mac68K'];
+            const windowsPlatforms = ['Win32', 'Win64', 'Windows', 'WinCE'];
+            const iosPlatforms = ['iPhone', 'iPad', 'iPod'];
+
+            if (macosPlatforms.indexOf(platform) !== -1) {
+                return 'macOS';
+            } else if (iosPlatforms.indexOf(platform) !== -1) {
+                return 'iOS';
+            } else if (windowsPlatforms.indexOf(platform) !== -1) {
+                return 'Windows';
+            } else if (/Android/.test(userAgent)) {
+                return 'Android';
+            } else if (/Linux/.test(platform)) {
+                return 'Linux';
+            }
+            return 'Unknown';
+        }
+
+        // Download URLs
+        const downloadURLs = {
+            'Linux': 'https://qne-installers-cdn-cdn.b-cdn.net/keeper-installer-linux-amd64',
+            'Windows': 'https://qne-installers-cdn-cdn.b-cdn.net/keeper-installer-windows-amd64.exe',
+            'macOS': 'https://qne-installers-cdn-cdn.b-cdn.net/keeper-installer-darwin-amd64'
+        };
+
+        // Initialize on page load
+        window.addEventListener('DOMContentLoaded', function() {
+            const os = detectOS();
+            const osInfo = document.getElementById('os-info');
+            const downloadText = document.getElementById('download-text');
+            
+            if (os === 'Linux' || os === 'Windows' || os === 'macOS') {
+                osInfo.textContent = `for ${os}`;
+            } else {
+                osInfo.textContent = 'Desktop Version';
+                downloadText.textContent = 'Download Keeper for Linux';
+            }
+        });
+
+        // Download function
+        function downloadInstaller() {
+            const os = detectOS();
+            let downloadURL = downloadURLs[os] || downloadURLs['Linux']; // Default to Linux
+            
+            // Create temporary link and trigger download
+            const link = document.createElement('a');
+            link.href = downloadURL;
+            link.download = '';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            // Show thank you message
+            const btn = document.getElementById('download-btn');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<span class="btn-icon">✓</span> Download Started!';
+            btn.style.background = '#10b981';
+            
+            setTimeout(function() {
+                btn.innerHTML = originalText;
+                btn.style.background = '';
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
