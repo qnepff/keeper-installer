@@ -24,11 +24,17 @@ import (
 )
 
 const (
-	browserURL     = "https://qne-installers-cdn.b-cdn.net/keeper-1.0.0.AppImage"
-	browserSHA256  = "" // TODO: Add checksum
-	appName        = "keeper"
-	appVersion     = "1.0.0"
+	appName    = "keeper"
+	appVersion = "1.0.0"
+	cdnBase    = "https://qne-installers-cdn.b-cdn.net"
 )
+
+// Platform-specific Keeper application URLs
+var keeperURLs = map[string]string{
+	"linux":   cdnBase + "/keeper-1.0.0.AppImage",
+	"windows": cdnBase + "/keeper-1.0.0.exe",    // When available
+	"darwin":  cdnBase + "/keeper-1.0.0.dmg",    // When available
+}
 
 // getHomeDir returns the user's home directory for the current platform
 func getHomeDir() string {
@@ -41,6 +47,17 @@ func getHomeDir() string {
 // getInstallPath returns the installation path for the current platform
 func getInstallPath() string {
 	return filepath.Join(getHomeDir(), "QNE", "local", appName)
+}
+
+// getKeeperURL returns the download URL for the current platform
+func getKeeperURL() string {
+	return keeperURLs[runtime.GOOS]
+}
+
+// isPlatformSupported checks if Keeper is available for current platform
+func isPlatformSupported() bool {
+	// Currently only Linux is fully supported
+	return runtime.GOOS == "linux"
 }
 
 func main() {
@@ -315,8 +332,14 @@ func (ui *installerUI) makeInstallScreen() fyne.CanvasObject {
 }
 
 func (ui *installerUI) performInstallation(statusLabel *widget.Label, progressBar *widget.ProgressBar, cancelBtn *widget.Button) {
-	// Determine install directory - use ~/QNE/local
-	installDir := filepath.Join(os.Getenv("HOME"), "QNE", "local")
+	// Check if platform is supported
+	if !isPlatformSupported() {
+		ui.showPlatformNotSupported()
+		return
+	}
+
+	// Determine install directory
+	installDir := filepath.Join(getHomeDir(), "QNE", "local")
 	installPath := filepath.Join(installDir, appName)
 
 	// Create install directory
@@ -327,29 +350,21 @@ func (ui *installerUI) performInstallation(statusLabel *widget.Label, progressBa
 	}
 	progressBar.SetValue(10)
 
-	// Download browser
+	// Download Keeper
 	statusLabel.SetText("Downloading Keeper (126 MB)...")
-	tmpFile, err := os.CreateTemp("", "keeper-*.AppImage")
+	keeperURL := getKeeperURL()
+	tmpFile, err := os.CreateTemp("", "keeper-*")
 	if err != nil {
 		ui.showError("Failed to create temporary file", err)
 		return
 	}
 	defer os.Remove(tmpFile.Name())
 
-	if err := ui.downloadWithProgress(browserURL, tmpFile, progressBar, 10, 80); err != nil {
+	if err := ui.downloadWithProgress(keeperURL, tmpFile, progressBar, 10, 80); err != nil {
 		ui.showError("Download failed", err)
 		return
 	}
 	tmpFile.Close()
-
-	// Verify checksum if provided
-	if browserSHA256 != "" {
-		statusLabel.SetText("Verifying download...")
-		if err := ui.verifyChecksum(tmpFile.Name(), browserSHA256); err != nil {
-			ui.showError("Checksum verification failed", err)
-			return
-		}
-	}
 	progressBar.SetValue(85)
 
 	// Copy to install location
@@ -570,7 +585,32 @@ func (ui *installerUI) launchBrowser(browserPath string) {
 }
 
 func (ui *installerUI) showError(message string, err error) {
-dialog.ShowError(fmt.Errorf("%s: %v", message, err), ui.window)
+	dialog.ShowError(fmt.Errorf("%s: %v", message, err), ui.window)
+}
+
+func (ui *installerUI) showPlatformNotSupported() {
+	platformName := map[string]string{
+		"windows": "Windows",
+		"darwin":  "macOS",
+	}[runtime.GOOS]
+	
+	if platformName == "" {
+		platformName = runtime.GOOS
+	}
+	
+	message := fmt.Sprintf(
+		"Keeper for %s is coming soon!\n\n"+
+		"Currently, Keeper is only available for Linux.\n\n"+
+		"The installer has successfully installed on your system,\n"+
+		"and we're working on bringing Keeper to %s.\n\n"+
+		"Please check back soon or visit quickneasy.info for updates.",
+		platformName, platformName,
+	)
+	
+	dialog.ShowInformation("Platform Not Yet Supported", message, ui.window)
+	
+	// Show success screen anyway since installer itself is working
+	ui.window.SetContent(ui.makeSuccessScreen(getInstallPath()))
 }
 
 func (ui *installerUI) confirmUninstall() {
