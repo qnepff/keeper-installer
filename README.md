@@ -1,6 +1,8 @@
 # Keeper Installer
 
-Multi-platform installer for **Chameleon Keeper** - Personal P2P Platform & Skills Manager
+Installer for **Chameleon Keeper** - Personal P2P Platform & Skills Manager
+
+**Platform Support**: Linux (Windows/macOS coming soon - requires native Keeper builds)
 
 ## About Chameleon Keeper
 
@@ -16,8 +18,8 @@ Chameleon Keeper is your platform for managing chameleons and accessing the dece
 - ✅ **Self-installing** - Copies itself to `~/QNE/local` on first run
 - ✅ **No sudo required** - User-level installation
 - ✅ **GUI installer** - Built with Fyne for a native experience
-- ✅ **Multi-platform** - Linux, Windows, macOS (coming soon)
-- ✅ **Auto-downloads** - Fetches Keeper from CDN
+- ✅ **Linux support** - Works on any modern Linux distribution
+- ✅ **Auto-downloads** - Fetches Keeper AppImage from CDN
 - ✅ **Creates shortcuts** - Desktop and app menu entries
 - ✅ **Uninstaller** - Clean removal of all files
 
@@ -27,7 +29,7 @@ Chameleon Keeper is your platform for managing chameleons and accessing the dece
 
 1. Download the installer:
    ```bash
-   wget https://qne-installers-cdn-cdn.b-cdn.net/keeper-installer-linux-amd64
+   wget https://qne-installers-cdn.b-cdn.net/keeper-installer-linux-amd64
    ```
 
 2. Make it executable:
@@ -48,7 +50,16 @@ Chameleon Keeper is your platform for managing chameleons and accessing the dece
 
 ### Windows & macOS
 
-Coming soon! Builds will be available automatically via GitHub Actions.
+**Status**: Not yet available
+
+The installer framework supports cross-platform builds, but the **Keeper application itself** currently exists only as a Linux AppImage. To support Windows and macOS, we need to:
+
+1. Build Keeper as a Windows `.exe` (using electron-builder)
+2. Build Keeper as a macOS `.app` (using electron-builder)
+3. Upload platform-specific builds to CDN
+4. Update installer to download the appropriate version
+
+**Interested in helping?** See the Contributing section below!
 
 ## Building from Source
 

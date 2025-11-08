@@ -24,7 +24,7 @@ import (
 )
 
 const (
-	browserURL     = "https://qne-installers-cdn-cdn.b-cdn.net/keeper-1.0.0.AppImage"
+	browserURL     = "https://qne-installers-cdn.b-cdn.net/keeper-1.0.0.AppImage"
 	browserSHA256  = "" // TODO: Add checksum
 	appName        = "keeper"
 	appVersion     = "1.0.0"
