@@ -29,7 +29,7 @@ jobs:
           go build -o keeper-installer-linux-amd64
       
       - name: Upload to BunnyCDN
-        if: (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/')) && secrets.BUNNY_STORAGE_PASSWORD_INSTALLERS != ''
+        if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/')
         env:
           BUNNY_STORAGE_PASSWORD: ${{ secrets.BUNNY_STORAGE_PASSWORD_INSTALLERS }}
         run: |
@@ -59,7 +59,7 @@ jobs:
           go build -o keeper-installer-windows-amd64.exe
       
       - name: Upload to BunnyCDN
-        if: (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/')) && secrets.BUNNY_STORAGE_PASSWORD_INSTALLERS != ''
+        if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/')
         env:
           BUNNY_STORAGE_PASSWORD: ${{ secrets.BUNNY_STORAGE_PASSWORD_INSTALLERS }}
         shell: bash
@@ -90,7 +90,7 @@ jobs:
           go build -o keeper-installer-darwin-amd64
       
       - name: Upload to BunnyCDN
-        if: (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/')) && secrets.BUNNY_STORAGE_PASSWORD_INSTALLERS != ''
+        if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/')
         env:
           BUNNY_STORAGE_PASSWORD: ${{ secrets.BUNNY_STORAGE_PASSWORD_INSTALLERS }}
         run: |
@@ -108,7 +108,7 @@ jobs:
   deploy-website:
     needs: [build-linux, build-windows, build-macos]
     runs-on: ubuntu-latest
-    if: (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/')) && secrets.BUNNY_STORAGE_PASSWORD_WEBSITE != ''
+    if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/')
     steps:
       - uses: actions/checkout@v3
       
