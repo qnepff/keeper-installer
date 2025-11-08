@@ -30,6 +30,19 @@ const (
 	appVersion     = "1.0.0"
 )
 
+// getHomeDir returns the user's home directory for the current platform
+func getHomeDir() string {
+	if runtime.GOOS == "windows" {
+		return os.Getenv("USERPROFILE")
+	}
+	return os.Getenv("HOME")
+}
+
+// getInstallPath returns the installation path for the current platform
+func getInstallPath() string {
+	return filepath.Join(getHomeDir(), "QNE", "local", appName)
+}
+
 func main() {
 	// Check if installer itself needs to be installed
 	if !isInstallerInstalled() {
@@ -221,7 +234,7 @@ func (ui *installerUI) makeWelcomeScreen() fyne.CanvasObject {
 	))
 
 	// Install info
-	installPath := filepath.Join(os.Getenv("HOME"), "QNE", "local", appName)
+	installPath := getInstallPath()
 	installInfo := widget.NewLabel(fmt.Sprintf("Install location: %s", installPath))
 	installInfo.TextStyle = fyne.TextStyle{Italic: true}
 
@@ -441,12 +454,21 @@ func (ui *installerUI) copyFile(src, dst string, perm os.FileMode) error {
 }
 
 func (ui *installerUI) createDesktopEntry() error {
-	installPath := filepath.Join(os.Getenv("HOME"), "QNE", "local", appName)
+	installPath := filepath.Join(getHomeDir(), "QNE", "local", appName)
 
-	// Simple desktop entry format - direct execution works best
+	if runtime.GOOS == "windows" {
+		// Windows shortcuts not currently supported
+		// Would require syscall to create .lnk files
+		// Users can create shortcuts manually if needed
+		fmt.Println("Note: Desktop shortcut creation not supported on Windows")
+		fmt.Println("You can create a shortcut manually by right-clicking the installed executable")
+		return nil
+	}
+	
+	// Linux/Mac: Create .desktop files
 	content := fmt.Sprintf(`[Desktop Entry]
-Version=1.0
 Type=Application
+Version=1.0
 Name=Keeper
 Comment=Chameleon Keeper - P2P Platform
 Exec=%s --no-sandbox
@@ -458,7 +480,7 @@ StartupNotify=true
 `, installPath)
 
 	// Create in applications directory (for app menu)
-	desktopDir := filepath.Join(os.Getenv("HOME"), ".local", "share", "applications")
+	desktopDir := filepath.Join(getHomeDir(), ".local", "share", "applications")
 	if err := os.MkdirAll(desktopDir, 0755); err != nil {
 		return err
 	}
@@ -469,7 +491,7 @@ StartupNotify=true
 	}
 
 	// Also create on Desktop (for desktop icon)
-	desktopPath := filepath.Join(os.Getenv("HOME"), "Desktop", "keeper.desktop")
+	desktopPath := filepath.Join(getHomeDir(), "Desktop", "keeper.desktop")
 	if err := os.WriteFile(desktopPath, []byte(content), 0755); err != nil {
 		// Non-fatal if Desktop doesn't exist or isn't writable
 		fmt.Printf("Note: Could not create desktop shortcut: %v\n", err)
@@ -527,18 +549,24 @@ return container.NewPadded(content)
 }
 
 func (ui *installerUI) launchBrowser(browserPath string) {
-// Launch browser in background with --no-sandbox flag (required for AppImage)
-cmd := exec.Command(browserPath, "--no-sandbox")
-if err := cmd.Start(); err != nil {
-ui.showError("Failed to launch browser", err)
-return
-}
+	// Launch browser in background with --no-sandbox flag (required for AppImage)
+	// Note: On Windows, the .AppImage won't run (Linux-only format)
+	if runtime.GOOS == "windows" {
+		ui.showError("Launch not supported", fmt.Errorf("The Keeper AppImage is Linux-only. On Windows, you'll need a Windows build of Keeper"))
+		return
+	}
 	
-// Close installer after a brief delay
-go func() {
-time.Sleep(500 * time.Millisecond)
-ui.app.Quit()
-}()
+	cmd := exec.Command(browserPath, "--no-sandbox")
+	if err := cmd.Start(); err != nil {
+		ui.showError("Failed to launch browser", err)
+		return
+	}
+	
+	// Close installer after a brief delay
+	go func() {
+		time.Sleep(500 * time.Millisecond)
+		ui.app.Quit()
+	}()
 }
 
 func (ui *installerUI) showError(message string, err error) {
@@ -546,7 +574,7 @@ dialog.ShowError(fmt.Errorf("%s: %v", message, err), ui.window)
 }
 
 func (ui *installerUI) confirmUninstall() {
-installPath := filepath.Join(os.Getenv("HOME"), "QNE", "local", appName)
+	installPath := getInstallPath()
 	
 // Check if browser is installed
 if _, err := os.Stat(installPath); os.IsNotExist(err) {
